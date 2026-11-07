@@ -1377,9 +1377,9 @@ function updateSemesterSummaries(){
     const termEl=document.getElementById(`tgpa-${i}`);
     const cgpaEl=document.getElementById(`tcgpa-${i}`);
 
-    if(creditEl) creditEl.textContent=`Credit: ${formatCredits(totalCredits)}`;
-    if(termEl) termEl.textContent=`Term GPA: ${termGPA}`;
-    if(cgpaEl) cgpaEl.textContent=`CGPA: ${cumulativeCGPA}`;
+    if(creditEl) creditEl.textContent=`Credit ${formatCredits(totalCredits)}`;
+    if(termEl) termEl.textContent=`Term GPA ${termGPA}`;
+    if(cgpaEl) cgpaEl.textContent=`CGPA ${cumulativeCGPA}`;
   });
 }
 
