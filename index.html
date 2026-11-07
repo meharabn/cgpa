@@ -434,7 +434,7 @@ h1{
   width:100%;
   padding:10px 14px;
   border:1px solid var(--border-subtle);
-  border-radius:12px;
+  border-radius:8px;
   background-color:var(--input-bg);
   backdrop-filter:blur(10px);
   -webkit-backdrop-filter:blur(10px);
@@ -842,7 +842,7 @@ h1{
   width:100%;
   height:40px;
   border:1px solid var(--border-subtle);
-  border-radius:12px;
+  border-radius:8px;
   background-color:var(--input-bg);
   color:var(--text);
   padding:8px 12px;
@@ -968,6 +968,14 @@ h1{
   .credit-input{ padding:10px; font-size:0.9rem; height:42px; }
   .del{ width:40px; height:40px; }
   .del::after{ width:22px; height:22px; }
+  .button-group{ width:100%; }
+  .button-group .secondary-btn,
+  .button-group .danger-btn{
+    flex:1;
+    padding:10px clamp(8px,2.5vw,18px);
+    text-align:center;
+    white-space:nowrap;
+  }
   body{ padding-bottom:110px; }
   .header{ flex-direction:row; align-items:center; gap:16px; }
   .header-left{ width:auto; flex:1; }
@@ -991,7 +999,13 @@ h1{
   .credit-input{ padding:10px; font-size:0.9rem; height:42px; }
   .del{ width:40px; height:40px; }
   .del::after{ width:22px; height:22px; }
-  .button-group{ flex-direction:row; gap:8px; margin-top:16px; }
+  .button-group{ flex-direction:row; gap:8px; margin-top:16px; width:100%; }
+  .button-group .secondary-btn,
+  .button-group .danger-btn{
+    flex:1;
+    padding:10px clamp(6px,2.5vw,14px);
+    font-size:0.9rem;
+  }
   .header{ gap:12px; margin-bottom:16px; }
   .clear-btn,.settings-btn,.theme-btn,.export-btn,.import-btn{ padding:5px; height:42px; width:42px; }
   .sidebar{ padding:18px; border:0px solid var(--border); border-bottom:none; border-radius:14px 14px 0 0; }
@@ -1016,6 +1030,12 @@ h1{
   .credit-input{ padding:10px 6px; font-size:0.9rem; height:42px; }
   .del{ width:40px; height:40px; }
   .del::after{ width:22px; height:22px; }
+  .button-group{ gap:6px; }
+  .button-group .secondary-btn,
+  .button-group .danger-btn{
+    padding:10px clamp(4px,2vw,10px);
+    font-size:0.85rem;
+  }
   body{ padding-bottom:105px; }
   .card{ padding:14px; }
   .header{ gap:8px; }
@@ -1406,9 +1426,11 @@ function deleteSubject(semesterIndex, subjectIndex){
     alert('You must have at least one course in a semester');
     return;
   }
-  data.semesters[semesterIndex].subjects.splice(subjectIndex,1);
-  save();
-  render();
+  if(confirm('Are you sure you want to delete this course?')){
+    data.semesters[semesterIndex].subjects.splice(subjectIndex,1);
+    save();
+    render();
+  }
 }
 
 function deleteSemester(index){
