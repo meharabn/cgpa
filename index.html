@@ -664,6 +664,14 @@ h1{
   display:flex;
   gap:10px;
   margin-top:16px;
+  width:100%;
+}
+.button-group .secondary-btn,
+.button-group .danger-btn{
+  flex:1;
+  padding:10px clamp(8px,2vw,18px);
+  text-align:center;
+  white-space:nowrap;
 }
 
 /* ── SIDEBAR ─────────────────────────────────────────── */
@@ -933,7 +941,7 @@ h1{
     bottom:0;
     top:auto;
     margin:0;
-    border-radius:14px 14px 0 0;
+    border-radius:0;
     z-index:1000;
     box-shadow:0 -4px 30px rgba(0,0,0,0.15);
     display:flex;
@@ -1008,7 +1016,7 @@ h1{
   }
   .header{ gap:12px; margin-bottom:16px; }
   .clear-btn,.settings-btn,.theme-btn,.export-btn,.import-btn{ padding:5px; height:42px; width:42px; }
-  .sidebar{ padding:18px; border:0px solid var(--border); border-bottom:none; border-radius:14px 14px 0 0; }
+  .sidebar{ padding:18px; border:0px solid var(--border); border-bottom:none; border-radius:0; }
   .cgpa-display{ font-size:1.8rem; margin:0; }
   .credits-display{ margin:0; font-size:1rem; text-align:right; }
   .primary-btn{ padding:16px 20px; font-size:1.1rem; font-weight:600; }
