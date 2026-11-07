@@ -360,6 +360,10 @@ h1{
   width:492px;
 }
 
+.mobile-add-btn{
+  display:none;
+}
+
 /* ── GLASS CARD ──────────────────────────────────────── */
 .card{
   background:var(--card);
@@ -681,7 +685,8 @@ h1{
   border-color:var(--border);
 }
 
-[data-theme="dark"] .sidebar .primary-btn{
+[data-theme="dark"] .sidebar .primary-btn,
+[data-theme="dark"] .mobile-add-btn{
   box-shadow:0 4px 18px rgba(255,255,255,0.12);
 }
 
@@ -937,6 +942,12 @@ h1{
     align-items:center;
     row-gap:14px;
   }
+  .sidebar .primary-btn{
+    display:none;
+  }
+  .mobile-add-btn{
+    display:block;
+  }
   .cgpa-display,
   .credits-display{
     margin:0;
@@ -957,7 +968,7 @@ h1{
   .credit-input{ padding:10px; font-size:0.9rem; height:42px; }
   .del{ width:40px; height:40px; }
   .del::after{ width:22px; height:22px; }
-  body{ padding-bottom:220px; }
+  body{ padding-bottom:110px; }
   .header{ flex-direction:row; align-items:center; gap:16px; }
   .header-left{ width:auto; flex:1; }
   .header-right{ width:auto; justify-content:flex-end; }
@@ -967,7 +978,7 @@ h1{
 
 /* ── RESPONSIVE 600px ────────────────────────────────── */
 @media(max-width:600px){
-  body{ padding:16px; padding-bottom:240px; margin:0; }
+  body{ padding:16px; padding-bottom:110px; margin:0; }
   .container{ gap:16px; margin:0; }
   .card{ padding:16px; }
   .course-row{
@@ -1005,7 +1016,7 @@ h1{
   .credit-input{ padding:10px 6px; font-size:0.9rem; height:42px; }
   .del{ width:40px; height:40px; }
   .del::after{ width:22px; height:22px; }
-  body{ padding-bottom:230px; }
+  body{ padding-bottom:105px; }
   .card{ padding:14px; }
   .header{ gap:8px; }
   h1{ font-size:1.4rem; gap:7px; }
@@ -1056,6 +1067,7 @@ h1{
   <div class="semesters-column" id="semesters">
     <!-- Semesters will be dynamically added here -->
   </div>
+  <button class="primary-btn mobile-add-btn" onclick="addSemester()">Add Semester</button>
 
   <!-- SIDEBAR - CGPA PANEL -->
   <div class="sidebar card">
