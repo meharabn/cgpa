@@ -422,16 +422,18 @@ h1{
 /* ── COURSE ROW ──────────────────────────────────────── */
 .course-row{
   display:grid;
-  grid-template-columns:185px 100px 80px 40px;
+  grid-template-columns:1fr 100px 80px 42px;
   gap:12px;
   margin-bottom:10px;
   align-items:center;
+  width:100%;
 }
 
 .course-input,
 .grade-select,
 .credit-input{
   width:100%;
+  min-width:0;
   padding:10px 14px;
   border:1px solid var(--border-subtle);
   border-radius:8px;
@@ -444,10 +446,6 @@ h1{
   box-sizing:border-box;
   transition:border-color 0.2s;
   font-family:'Google Sans',system-ui,sans-serif;
-}
-
-.course-input{
-  max-width:185px;
 }
 
 .grade-select,
@@ -520,8 +518,8 @@ h1{
   backdrop-filter:var(--blur);
   -webkit-backdrop-filter:var(--blur);
   cursor:pointer;
-  height:40px;
-  width:40px;
+  height:42px;
+  width:42px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -529,7 +527,7 @@ h1{
   transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
   padding:0;
   position:relative;
-  margin:0 auto;
+  margin:0;
   box-shadow:var(--shadow-sm);
 }
 .del:hover{
@@ -961,20 +959,18 @@ h1{
     margin:0;
   }
   .course-row{
-    grid-template-columns:minmax(140px,185px) 100px 75px 40px;
+    grid-template-columns:1fr 100px 75px 42px;
     gap:8px;
     width:100%;
-    max-width:100%;
   }
   .course-input{
-    max-width:100%;
     padding:10px 12px;
     font-size:0.9rem;
     height:42px;
   }
   .grade-select{ padding:10px 30px 10px 10px; font-size:0.9rem; height:42px; }
   .credit-input{ padding:10px; font-size:0.9rem; height:42px; }
-  .del{ width:40px; height:40px; }
+  .del{ width:42px; height:42px; }
   .del::after{ width:22px; height:22px; }
   .button-group{ width:100%; }
   .button-group .secondary-btn,
@@ -998,14 +994,15 @@ h1{
   .container{ gap:16px; margin:0; }
   .card{ padding:16px; }
   .course-row{
-    grid-template-columns:minmax(120px,170px) 95px 70px 40px;
+    grid-template-columns:1fr 95px 70px 42px;
     gap:8px;
     margin-bottom:12px;
+    width:100%;
   }
-  .course-input{ max-width:100%; padding:10px 12px; font-size:0.9rem; height:42px; }
+  .course-input{ padding:10px 12px; font-size:0.9rem; height:42px; }
   .grade-select{ padding:10px 28px 10px 10px; background-position:right 12px center; font-size:0.9rem; height:42px; }
   .credit-input{ padding:10px; font-size:0.9rem; height:42px; }
-  .del{ width:40px; height:40px; }
+  .del{ width:42px; height:42px; }
   .del::after{ width:22px; height:22px; }
   .button-group{ flex-direction:row; gap:8px; margin-top:16px; width:100%; }
   .button-group .secondary-btn,
@@ -1032,11 +1029,15 @@ h1{
 
 /* ── RESPONSIVE 420px ────────────────────────────────── */
 @media(max-width:420px){
-  .course-row{ grid-template-columns:minmax(100px,155px) 85px 60px 40px; gap:6px; }
+  .course-row{
+    grid-template-columns:1fr 85px 60px 42px;
+    gap:6px;
+    width:100%;
+  }
   .course-input{ padding:10px 8px; font-size:0.9rem; height:42px; }
   .grade-select{ padding:10px 24px 10px 8px; background-position:right 10px center; font-size:0.9rem; height:42px; }
   .credit-input{ padding:10px 6px; font-size:0.9rem; height:42px; }
-  .del{ width:40px; height:40px; }
+  .del{ width:42px; height:42px; }
   .del::after{ width:22px; height:22px; }
   .button-group{ gap:6px; }
   .button-group .secondary-btn,
