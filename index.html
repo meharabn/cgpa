@@ -1,1 +1,1599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CGPA Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/png" href="assets/images/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Outfit:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
+<style>
+:root{
+  --bg:#FAFFFA;
+  --bg2:#FAFFFA;
+  --card:rgba(255,255,255,0.78);
+  --border:rgba(0,0,0,0.09);
+  --border-subtle:rgba(0,0,0,0.16);
+  --input-bg:rgba(255,255,255,0.85);
+  --text:#000000;
+  --muted:#64748b;
+  --accent:#000000;
+  --accent-soft:rgba(0,0,0,0.06);
+  --accent-soft-danger:rgba(239,68,68,0.1);
+  --danger:#ef4444;
+  --success:#22c55e;
+  --success-soft:rgba(34,197,94,0.1);
+  --success-border:rgba(34,197,94,0.18);
+  --shadow:0 8px 32px rgba(0,0,0,0.07),0 2px 8px rgba(0,0,0,0.04);
+  --shadow-sm:0 2px 12px rgba(0,0,0,0.05),0 1px 4px rgba(0,0,0,0.03);
+  --blur:blur(22px) saturate(180%);
+}
+
+[data-theme="dark"]{
+  --bg:#000000;
+  --bg2:#000000;
+  --card:rgba(255,255,255,0.11);
+  --border:rgba(255,255,255,0.12);
+  --border-subtle:rgba(255,255,255,0.2);
+  --input-bg:rgba(22,22,22,0.95);
+  --text:#e5e7eb;
+  --muted:#a3a3a3;
+  --accent:#ffffff;
+  --accent-soft:rgba(255,255,255,0.12);
+  --accent-soft-danger:rgba(248,113,113,0.12);
+  --danger:#f87171;
+  --success:#4ade80;
+  --success-soft:rgba(74,222,128,0.12);
+  --success-border:rgba(74,222,128,0.22);
+  --shadow:0 8px 32px rgba(0,0,0,0.55),0 2px 8px rgba(0,0,0,0.35);
+  --shadow-sm:0 2px 12px rgba(0,0,0,0.4);
+  --blur:blur(22px) saturate(180%);
+}
+
+/* ── BASE ────────────────────────────────────────────── */
+*{
+  box-sizing:border-box;
+  font-family:'Google Sans',system-ui,sans-serif;
+  margin:0;
+  padding:0;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  padding:20px;
+  min-height:100vh;
+  transition:background 0.4s ease;
+  -webkit-font-smoothing:antialiased;
+}
+
+[data-theme="dark"] body{
+  background:#000000;
+}
+
+/* subtle AMOLED depth glow so glass blur has something to catch */
+[data-theme="dark"] body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 90% 60% at 15% 10%,rgba(255,255,255,0.05) 0%,transparent 65%),
+    radial-gradient(ellipse 70% 50% at 85% 85%,rgba(255,255,255,0.03) 0%,transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+
+[data-theme="dark"] .container{
+  position:relative;
+  z-index:1;
+}
+
+/* ── LAYOUT ──────────────────────────────────────────── */
+.container{
+  width:812px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:492px 300px;
+  gap:20px;
+}
+
+.header{
+  grid-column:1 / -1;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:16px;
+  flex-wrap:nowrap;
+  gap:12px;
+}
+
+.header-left{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  flex:1;
+}
+
+.title-block{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+h1{
+  font-family:'Outfit','Google Sans',system-ui,sans-serif;
+  font-weight:800;
+  font-size:2rem;
+  line-height:1.05;
+  margin:0;
+  white-space:nowrap;
+  letter-spacing:0;
+  color:var(--accent);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.cgpa-logo{
+  height:27px;
+  width:auto;
+  display:block;
+  object-fit:contain;
+}
+
+.logo-dark{
+  display:none;
+}
+
+[data-theme="dark"] .logo-light{
+  display:none;
+}
+
+[data-theme="dark"] .logo-dark{
+  display:block;
+}
+
+.policy-link{
+  width:max-content;
+  border:1px solid var(--border-subtle);
+  border-radius:999px;
+  background:var(--accent-soft);
+  color:var(--accent);
+  padding:4px 12px;
+  font-size:0.78rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.policy-link:hover{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#ffffff;
+  transform:scale(1.04);
+}
+
+[data-theme="dark"] .policy-link:hover{
+  color:#000000;
+}
+
+/* ── HEADER BUTTONS ──────────────────────────────────── */
+.header-right{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-shrink:0;
+}
+
+/* Shared base — identical structure to .del */
+.clear-btn,
+.settings-btn,
+.export-btn,
+.import-btn,
+.theme-btn{
+  width:42px;
+  height:42px;
+  border-radius:13px;
+  border:1px solid var(--border);
+  background:var(--card);
+  backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);
+  cursor:pointer;
+  transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  flex-shrink:0;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:var(--shadow-sm);
+}
+
+[data-theme="dark"] .clear-btn,
+[data-theme="dark"] .settings-btn,
+[data-theme="dark"] .export-btn,
+[data-theme="dark"] .import-btn,
+[data-theme="dark"] .theme-btn{
+  background:var(--input-bg);
+  border-color:var(--border-subtle);
+}
+
+/* Clear — trash icon */
+.clear-btn::after{
+  content:'';
+  position:absolute;
+  width:22px;
+  height:22px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef4444'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+}
+.clear-btn:hover{
+  background:var(--danger);
+  border-color:var(--danger);
+  transform:scale(1.08);
+  box-shadow:0 6px 20px rgba(239,68,68,0.35);
+}
+.clear-btn:hover::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/%3E%3C/svg%3E");
+}
+
+.settings-btn::after{
+  content:'';
+  position:absolute;
+  width:22px;
+  height:22px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='4' y1='21' x2='4' y2='14'/%3E%3Cline x1='4' y1='10' x2='4' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='12'/%3E%3Cline x1='12' y1='8' x2='12' y2='3'/%3E%3Cline x1='20' y1='21' x2='20' y2='16'/%3E%3Cline x1='20' y1='12' x2='20' y2='3'/%3E%3Cline x1='1' y1='14' x2='7' y2='14'/%3E%3Cline x1='9' y1='8' x2='15' y2='8'/%3E%3Cline x1='17' y1='16' x2='23' y2='16'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+}
+[data-theme="dark"] .settings-btn::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='4' y1='21' x2='4' y2='14'/%3E%3Cline x1='4' y1='10' x2='4' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='12'/%3E%3Cline x1='12' y1='8' x2='12' y2='3'/%3E%3Cline x1='20' y1='21' x2='20' y2='16'/%3E%3Cline x1='20' y1='12' x2='20' y2='3'/%3E%3Cline x1='1' y1='14' x2='7' y2='14'/%3E%3Cline x1='9' y1='8' x2='15' y2='8'/%3E%3Cline x1='17' y1='16' x2='23' y2='16'/%3E%3C/svg%3E");
+}
+.settings-btn:hover{
+  background:var(--accent);
+  border-color:var(--accent);
+  transform:scale(1.08);
+  box-shadow:0 6px 20px rgba(0,0,0,0.22);
+}
+.settings-btn:hover::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='4' y1='21' x2='4' y2='14'/%3E%3Cline x1='4' y1='10' x2='4' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='12'/%3E%3Cline x1='12' y1='8' x2='12' y2='3'/%3E%3Cline x1='20' y1='21' x2='20' y2='16'/%3E%3Cline x1='20' y1='12' x2='20' y2='3'/%3E%3Cline x1='1' y1='14' x2='7' y2='14'/%3E%3Cline x1='9' y1='8' x2='15' y2='8'/%3E%3Cline x1='17' y1='16' x2='23' y2='16'/%3E%3C/svg%3E");
+}
+[data-theme="dark"] .settings-btn:hover::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='4' y1='21' x2='4' y2='14'/%3E%3Cline x1='4' y1='10' x2='4' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='12'/%3E%3Cline x1='12' y1='8' x2='12' y2='3'/%3E%3Cline x1='20' y1='21' x2='20' y2='16'/%3E%3Cline x1='20' y1='12' x2='20' y2='3'/%3E%3Cline x1='1' y1='14' x2='7' y2='14'/%3E%3Cline x1='9' y1='8' x2='15' y2='8'/%3E%3Cline x1='17' y1='16' x2='23' y2='16'/%3E%3C/svg%3E");
+}
+
+/* Export — upload arrow */
+.export-btn::after{
+  content:'';
+  position:absolute;
+  width:22px;
+  height:22px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+}
+[data-theme="dark"] .export-btn::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E");
+}
+.export-btn:hover{
+  background:var(--accent);
+  border-color:var(--accent);
+  transform:scale(1.08);
+  box-shadow:0 6px 20px rgba(0,0,0,0.22);
+}
+.export-btn:hover::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E");
+}
+[data-theme="dark"] .export-btn:hover::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E");
+}
+
+/* Import — download arrow */
+.import-btn::after{
+  content:'';
+  position:absolute;
+  width:22px;
+  height:22px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='7 10 12 15 17 10'/%3E%3Cline x1='12' y1='15' x2='12' y2='3'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+}
+[data-theme="dark"] .import-btn::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='7 10 12 15 17 10'/%3E%3Cline x1='12' y1='15' x2='12' y2='3'/%3E%3C/svg%3E");
+}
+.import-btn:hover{
+  background:var(--accent);
+  border-color:var(--accent);
+  transform:scale(1.08);
+  box-shadow:0 6px 20px rgba(0,0,0,0.22);
+}
+.import-btn:hover::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='7 10 12 15 17 10'/%3E%3Cline x1='12' y1='15' x2='12' y2='3'/%3E%3C/svg%3E");
+}
+[data-theme="dark"] .import-btn:hover::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='7 10 12 15 17 10'/%3E%3Cline x1='12' y1='15' x2='12' y2='3'/%3E%3C/svg%3E");
+}
+
+/* Theme — data-mode drives which icon shows */
+.theme-btn[data-mode="light"]::after{
+  content:'';
+  position:absolute;
+  width:22px;
+  height:22px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+}
+.theme-btn[data-mode="dark"]::after{
+  content:'';
+  position:absolute;
+  width:22px;
+  height:22px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'/%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'/%3E%3Cline x1='1' y1='12' x2='3' y2='12'/%3E%3Cline x1='21' y1='12' x2='23' y2='12'/%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'/%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+}
+.theme-btn:hover{
+  background:var(--accent);
+  border-color:var(--accent);
+  transform:scale(1.08);
+  box-shadow:0 6px 20px rgba(0,0,0,0.22);
+}
+.theme-btn[data-mode="light"]:hover::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3C/svg%3E");
+}
+.theme-btn[data-mode="dark"]:hover::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'/%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'/%3E%3Cline x1='1' y1='12' x2='3' y2='12'/%3E%3Cline x1='21' y1='12' x2='23' y2='12'/%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'/%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'/%3E%3C/svg%3E");
+}
+
+/* ── SEMESTERS COLUMN ────────────────────────────────── */
+.semesters-column{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  width:492px;
+}
+
+/* ── GLASS CARD ──────────────────────────────────────── */
+.card{
+  background:var(--card);
+  backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:20px;
+  box-shadow:var(--shadow);
+  transition:all 0.3s ease;
+}
+
+.semester{
+  width:100%;
+}
+
+.sem-top{
+  display:flex;
+  justify-content:flex-start;
+  align-items:flex-start;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+
+.sem-summary{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.sem-title,
+.term-stat{
+  font-family:'Google Sans',system-ui,sans-serif;
+  font-size:0.85rem;
+  font-weight:700;
+  color:var(--accent);
+  background:var(--accent-soft);
+  padding:5px 13px;
+  border-radius:20px;
+  border:1px solid var(--border-subtle);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  letter-spacing:0;
+  white-space:nowrap;
+}
+
+.term-credit{
+  color:var(--accent);
+  background:var(--accent-soft);
+  border-color:var(--border-subtle);
+}
+
+/* ── COURSE ROW ──────────────────────────────────────── */
+.course-row{
+  display:grid;
+  grid-template-columns:185px 100px 80px 40px;
+  gap:12px;
+  margin-bottom:10px;
+  align-items:center;
+}
+
+.course-input,
+.grade-select,
+.credit-input{
+  width:100%;
+  padding:10px 14px;
+  border:1px solid var(--border-subtle);
+  border-radius:12px;
+  background-color:var(--input-bg);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  color:var(--text);
+  font-size:0.9rem;
+  height:42px;
+  box-sizing:border-box;
+  transition:border-color 0.2s;
+  font-family:'Google Sans',system-ui,sans-serif;
+}
+
+.course-input{
+  max-width:185px;
+}
+
+.grade-select,
+.settings-select{
+  appearance:none;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+  background-size:14px;
+}
+
+.grade-select{
+  padding:10px 30px 10px 12px;
+  color-scheme:light;
+}
+
+[data-theme="dark"] .grade-select{
+  color-scheme:dark;
+  background-color:var(--input-bg);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  border-color:var(--border-subtle);
+}
+
+[data-theme="dark"] .course-input,
+[data-theme="dark"] .credit-input{
+  color-scheme:dark;
+  background-color:var(--input-bg);
+  border-color:var(--border-subtle);
+  color:var(--text);
+}
+
+[data-theme="dark"] .grade-select option{
+  background:#222222;
+  color:#e5e7eb;
+}
+
+[data-theme="dark"] .grade-select option:checked{
+  background:#3a3a3a;
+  color:#ffffff;
+}
+
+.credit-input{
+  padding:10px;
+  text-align:center;
+}
+
+.course-input:focus,
+.grade-select:focus,
+.credit-input:focus,
+.settings-select:focus,
+.setting-input:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:none;
+}
+
+.credit-input::-webkit-outer-spin-button,
+.credit-input::-webkit-inner-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+
+/* ── DELETE BUTTON (row) ─────────────────────────────── */
+.del{
+  background:var(--card);
+  border:1px solid var(--border);
+  backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);
+  cursor:pointer;
+  height:40px;
+  width:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:13px;
+  transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  padding:0;
+  position:relative;
+  margin:0 auto;
+  box-shadow:var(--shadow-sm);
+}
+.del:hover{
+  background:var(--danger);
+  border-color:var(--danger);
+  transform:scale(1.08);
+  box-shadow:0 6px 20px rgba(239,68,68,0.35);
+}
+.del::after{
+  content:'';
+  position:absolute;
+  width:22px;
+  height:22px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef4444'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+}
+.del:hover::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] .del{
+  background:var(--input-bg);
+  border-color:var(--border-subtle);
+}
+
+[data-theme="dark"] .del:hover{
+  background:var(--danger);
+  border-color:var(--danger);
+}
+
+/* ── BUTTONS ─────────────────────────────────────────── */
+.primary-btn{
+  background:var(--accent);
+  color:#ffffff;
+  border:none;
+  padding:13px 20px;
+  border-radius:14px;
+  font-weight:600;
+  font-size:0.9rem;
+  cursor:pointer;
+  transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  width:100%;
+  box-shadow:0 4px 16px rgba(0,0,0,0.18);
+  font-family:'Google Sans',system-ui,sans-serif;
+}
+.primary-btn:hover{
+  background:#262626;
+  transform:scale(1.03);
+  box-shadow:0 8px 28px rgba(0,0,0,0.28);
+}
+.primary-btn:active{
+  transform:scale(0.98);
+}
+
+[data-theme="dark"] .primary-btn{
+  color:#000000;
+}
+[data-theme="dark"] .primary-btn:hover{
+  background:#e5e7eb;
+}
+
+.secondary-btn{
+  background:var(--card);
+  backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);
+  color:var(--accent);
+  border:1px solid var(--border);
+  padding:10px 18px;
+  border-radius:13px;
+  font-weight:600;
+  font-size:0.9rem;
+  cursor:pointer;
+  transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:var(--shadow-sm);
+  font-family:'Google Sans',system-ui,sans-serif;
+}
+.secondary-btn:hover{
+  background:var(--accent);
+  color:#ffffff;
+  border-color:var(--accent);
+  transform:scale(1.05);
+  box-shadow:0 6px 20px rgba(0,0,0,0.2);
+}
+
+[data-theme="dark"] .secondary-btn{
+  background:var(--input-bg);
+  border-color:var(--border-subtle);
+}
+
+[data-theme="dark"] .secondary-btn:hover{
+  background:var(--accent);
+  color:#000000;
+  border-color:var(--accent);
+}
+
+.danger-btn{
+  background:var(--card);
+  backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);
+  color:var(--danger);
+  border:1px solid var(--border);
+  padding:10px 18px;
+  border-radius:13px;
+  font-weight:600;
+  font-size:0.9rem;
+  cursor:pointer;
+  transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  position:relative;
+  box-shadow:var(--shadow-sm);
+  font-family:'Google Sans',system-ui,sans-serif;
+}
+.danger-btn:hover{
+  background:var(--danger);
+  color:white;
+  border-color:var(--danger);
+  transform:scale(1.05);
+  box-shadow:0 6px 20px rgba(239,68,68,0.35);
+}
+
+[data-theme="dark"] .danger-btn{
+  background:var(--input-bg);
+  border-color:var(--border-subtle);
+}
+
+[data-theme="dark"] .danger-btn:hover{
+  background:var(--danger);
+  border-color:var(--danger);
+}
+.button-group{
+  display:flex;
+  gap:10px;
+  margin-top:16px;
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────── */
+.sidebar{
+  width:300px;
+  position:sticky;
+  top:20px;
+  height:fit-content;
+  overflow:hidden;
+  isolation:isolate;
+  contain:paint;
+}
+
+[data-theme="dark"] .semester.card,
+[data-theme="dark"] .sidebar.card{
+  background:var(--card);
+  backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);
+  border-color:var(--border);
+}
+
+[data-theme="dark"] .sidebar .primary-btn{
+  box-shadow:0 4px 18px rgba(255,255,255,0.12);
+}
+
+.cgpa-display{
+  font-family:'Google Sans',system-ui,sans-serif;
+  font-optical-sizing:none;
+  font-variation-settings:'opsz' 17;
+  font-size:2rem;
+  font-weight:700;
+  color:var(--accent);
+  margin-bottom:6px;
+  letter-spacing:0;
+}
+
+.credits-display{
+  font-family:'Google Sans',system-ui,sans-serif;
+  font-size:0.9rem;
+  color:#006241;
+  font-weight:600;
+  margin:14px 0 22px;
+  padding:0;
+  letter-spacing:0.5px;
+}
+
+[data-theme="dark"] .credits-display{
+  color:#90EE90;
+}
+
+.settings-overlay{
+  position:fixed;
+  inset:0;
+  z-index:2000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,0.45);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+
+.settings-overlay.active{
+  display:flex;
+}
+
+.settings-card{
+  width:min(520px,100%);
+  max-height:calc(100vh - 40px);
+  overflow:auto;
+  background:var(--card);
+  backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--border);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  padding:20px;
+}
+
+[data-theme="dark"] .settings-card{
+  background:var(--card);
+  border-color:var(--border);
+}
+
+.settings-head,
+.settings-actions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.settings-head{
+  margin-bottom:16px;
+}
+
+.settings-title{
+  font-size:1.2rem;
+  font-weight:700;
+  color:var(--text);
+}
+
+.settings-close,
+.grade-remove{
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--muted);
+  border-radius:12px;
+  cursor:pointer;
+  transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+[data-theme="dark"] .settings-close,
+[data-theme="dark"] .grade-remove{
+  background:var(--input-bg);
+  border-color:var(--border-subtle);
+}
+
+.settings-close{
+  width:38px;
+  height:38px;
+}
+
+.settings-close::before,
+.settings-close::after{
+  content:'';
+  position:absolute;
+  width:17px;
+  height:2px;
+  border-radius:999px;
+  background:var(--muted);
+}
+
+.settings-close::before{
+  transform:rotate(45deg);
+}
+
+.settings-close::after{
+  transform:rotate(-45deg);
+}
+
+.settings-close:hover,
+.grade-remove:hover{
+  background:var(--danger);
+  border-color:var(--danger);
+  color:white;
+}
+
+.settings-close:hover::before,
+.settings-close:hover::after{
+  background:white;
+}
+
+.preset-row{
+  display:grid;
+  grid-template-columns:120px 1fr;
+  gap:12px;
+  align-items:center;
+  margin-bottom:14px;
+}
+
+.preset-row label{
+  font-weight:700;
+  color:var(--muted);
+  font-size:0.85rem;
+}
+
+.settings-select,
+.setting-input{
+  width:100%;
+  height:40px;
+  border:1px solid var(--border-subtle);
+  border-radius:12px;
+  background-color:var(--input-bg);
+  color:var(--text);
+  padding:8px 12px;
+  font-size:0.9rem;
+  transition:border-color 0.2s;
+}
+
+.settings-select{
+  padding-right:34px;
+}
+
+[data-theme="dark"] .settings-select,
+[data-theme="dark"] .setting-input{
+  color-scheme:dark;
+  background-color:var(--input-bg);
+  border-color:var(--border-subtle);
+}
+
+[data-theme="dark"] .settings-select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] .settings-select option{
+  background:#222222;
+  color:#e5e7eb;
+}
+
+.grade-settings-head,
+.grade-setting-row{
+  display:grid;
+  grid-template-columns:90px 230px 90px 42px;
+  gap:8px;
+  align-items:center;
+}
+
+.grade-settings-head{
+  color:var(--muted);
+  font-size:0.78rem;
+  font-weight:700;
+  margin-bottom:8px;
+  padding:0 2px;
+}
+
+.grade-setting-row{
+  margin-bottom:8px;
+}
+
+.grade-remove{
+  width:40px;
+  height:40px;
+}
+
+.grade-remove::after{
+  content:'';
+  position:absolute;
+  width:20px;
+  height:20px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef4444'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+}
+
+.grade-remove:hover::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/%3E%3C/svg%3E");
+}
+
+.settings-actions .secondary-btn{
+  min-width:130px;
+  white-space:nowrap;
+}
+
+.settings-actions{
+  margin-top:16px;
+}
+
+/* ── RESPONSIVE 900px ────────────────────────────────── */
+@media(max-width:900px){
+  .container{
+    width:100%;
+    grid-template-columns:1fr;
+    max-width:100%;
+    padding:0;
+  }
+  .semesters-column{
+    width:100%;
+  }
+  .sidebar{
+    width:100%;
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    top:auto;
+    margin:0;
+    border-radius:26px 26px 0 0;
+    z-index:1000;
+    box-shadow:0 -4px 30px rgba(0,0,0,0.15);
+  }
+  .course-row{
+    grid-template-columns:minmax(140px,185px) 100px 75px 40px;
+    gap:8px;
+    width:100%;
+    max-width:100%;
+  }
+  .course-input{
+    max-width:100%;
+    padding:10px 12px;
+    font-size:0.9rem;
+    height:42px;
+  }
+  .grade-select{ padding:10px 30px 10px 10px; font-size:0.9rem; height:42px; }
+  .credit-input{ padding:10px; font-size:0.9rem; height:42px; }
+  .del{ width:40px; height:40px; }
+  .del::after{ width:22px; height:22px; }
+  body{ padding-bottom:220px; }
+  .header{ flex-direction:row; align-items:center; gap:16px; }
+  .header-left{ width:auto; flex:1; }
+  .header-right{ width:auto; justify-content:flex-end; }
+  .clear-btn,.settings-btn,.theme-btn,.export-btn,.import-btn{ width:42px; height:42px; }
+  .primary-btn{ padding:14px 20px; font-size:1rem; font-weight:600; }
+}
+
+/* ── RESPONSIVE 600px ────────────────────────────────── */
+@media(max-width:600px){
+  body{ padding:16px; padding-bottom:240px; margin:0; }
+  .container{ gap:16px; margin:0; }
+  .card{ padding:16px; }
+  .course-row{
+    grid-template-columns:minmax(120px,170px) 95px 70px 40px;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .course-input{ max-width:100%; padding:10px 12px; font-size:0.9rem; height:42px; }
+  .grade-select{ padding:10px 28px 10px 10px; background-position:right 12px center; font-size:0.9rem; height:42px; }
+  .credit-input{ padding:10px; font-size:0.9rem; height:42px; }
+  .del{ width:40px; height:40px; }
+  .del::after{ width:22px; height:22px; }
+  .button-group{ flex-direction:row; gap:8px; margin-top:16px; }
+  .header{ gap:12px; margin-bottom:16px; }
+  .clear-btn,.settings-btn,.theme-btn,.export-btn,.import-btn{ padding:5px; height:42px; width:42px; }
+  .sidebar{ padding:18px; border:0px solid var(--border); border-bottom:none; border-radius:26px 26px 0 0; }
+  .cgpa-display{ font-size:1.8rem; margin-bottom:8px; }
+  .credits-display{ margin:14px 0 24px; font-size:1rem; }
+  .primary-btn{ padding:16px 20px; font-size:1.1rem; font-weight:600; }
+  .secondary-btn{ padding:10px 14px; font-size:0.9rem; }
+  .settings-overlay{ padding:12px; }
+  .settings-card{ padding:16px; }
+  .preset-row{ grid-template-columns:1fr; gap:8px; }
+  .grade-settings-head,
+  .grade-setting-row{ grid-template-columns:70px minmax(120px,1fr) 70px 40px; gap:6px; }
+  .settings-actions{ gap:8px; }
+  .settings-actions .secondary-btn{ min-width:112px; }
+}
+
+/* ── RESPONSIVE 420px ────────────────────────────────── */
+@media(max-width:420px){
+  .course-row{ grid-template-columns:minmax(100px,155px) 85px 60px 40px; gap:6px; }
+  .course-input{ padding:10px 8px; font-size:0.9rem; height:42px; }
+  .grade-select{ padding:10px 24px 10px 8px; background-position:right 10px center; font-size:0.9rem; height:42px; }
+  .credit-input{ padding:10px 6px; font-size:0.9rem; height:42px; }
+  .del{ width:40px; height:40px; }
+  .del::after{ width:22px; height:22px; }
+  body{ padding-bottom:230px; }
+  .card{ padding:14px; }
+  .header{ gap:8px; }
+  h1{ font-size:1.4rem; gap:7px; }
+  .cgpa-logo{ height:27px; }
+  .sem-summary{ justify-content:flex-start; }
+  .sem-title,
+  .term-stat{ font-size:0.78rem; padding:5px 10px; }
+  .clear-btn,.settings-btn,.theme-btn,.export-btn,.import-btn{ padding:5px; height:40px; width:40px; }
+  .clear-btn::after,
+  .settings-btn::after,
+  .export-btn::after,
+  .import-btn::after,
+  .theme-btn[data-mode="light"]::after,
+  .theme-btn[data-mode="dark"]::after{ width:20px; height:20px; }
+  .primary-btn{ padding:14px 16px; font-size:1rem; }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="title-block">
+        <h1>
+          <img src="assets/images/cgpa.webp" alt="CGPA" class="cgpa-logo logo-light">
+          <img src="assets/images/cgpa_white.webp" alt="CGPA" class="cgpa-logo logo-dark">
+        </h1>
+        <button class="policy-link" id="policyBadge" onclick="openSettings()">Grading policy: PUBLIC</button>
+      </div>
+    </div>
+    <div class="header-right">
+      <!-- Import button -->
+      <button class="import-btn" onclick="document.getElementById('importFile').click()" title="Import data"></button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+      <!-- Export button -->
+      <button class="export-btn" onclick="exportData()" title="Export data"></button>
+      <!-- Settings button -->
+      <button class="settings-btn" onclick="openSettings()" title="Grading settings"></button>
+      <!-- Theme button -->
+      <button class="theme-btn" onclick="toggleTheme()" id="themeIcon" data-mode="light"></button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT - SEMESTERS -->
+  <div class="semesters-column" id="semesters">
+    <!-- Semesters will be dynamically added here -->
+  </div>
+
+  <!-- SIDEBAR - CGPA PANEL -->
+  <div class="sidebar card">
+    <div class="cgpa-display" id="cgpa">CGPA: 0.00</div>
+    <div class="credits-display">
+      TOTAL CREDITS: <span id="credits">0</span>
+    </div>
+    <button class="primary-btn" onclick="addSemester()">Add Semester</button>
+  </div>
+
+</div>
+
+<div class="settings-overlay" id="settingsOverlay" onclick="if(event.target===this) closeSettings()">
+  <div class="settings-card">
+    <div class="settings-head">
+      <div class="settings-title">Grading Settings</div>
+      <button class="settings-close" onclick="closeSettings()" title="Close" aria-label="Close settings"></button>
+    </div>
+    <div class="preset-row">
+      <label for="policyPreset">Preset</label>
+      <select class="settings-select" id="policyPreset" onchange="selectPolicyPreset(this.value)"></select>
+    </div>
+    <div class="grade-settings-head">
+      <div>Grade</div>
+      <div>Range</div>
+      <div>Point</div>
+      <div></div>
+    </div>
+    <div id="gradeSettingsRows"></div>
+    <div class="settings-actions">
+      <button class="secondary-btn" onclick="addGradeSettingRow()">Add Grade</button>
+      <button class="primary-btn" onclick="saveGradingSettings()">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE='cgpa_final';
+const THEME='cgpa_theme';
+const DEFAULT_POLICY='PUBLIC';
+let data={semesters:[]};
+let settingsDraft=null;
+
+const GRADING_PRESETS={
+  PUBLIC:{name:'Bangladesh Public University',short:'PUBLIC',grades:[
+    {grade:'A+',range:'80 - 100',point:4.00},{grade:'A',range:'75 - 79',point:3.75},{grade:'A-',range:'70 - 74',point:3.50},
+    {grade:'B+',range:'65 - 69',point:3.25},{grade:'B',range:'60 - 64',point:3.00},{grade:'B-',range:'55 - 59',point:2.75},
+    {grade:'C+',range:'50 - 54',point:2.50},{grade:'C',range:'45 - 49',point:2.25},{grade:'D',range:'40 - 44',point:2.00},{grade:'F',range:'0 - 39',point:0.00}
+  ]},
+  EWU:{name:'East West University',short:'EWU',grades:[
+    {grade:'A+',range:'80 - 100',point:4.00},{grade:'A',range:'75 - 80',point:3.75},{grade:'A-',range:'70 - 75',point:3.50},
+    {grade:'B+',range:'65 - 70',point:3.25},{grade:'B',range:'60 - 65',point:3.00},{grade:'B-',range:'55 - 60',point:2.75},
+    {grade:'C+',range:'50 - 55',point:2.50},{grade:'C',range:'45 - 50',point:2.25},{grade:'D',range:'40 - 45',point:2.00},{grade:'F',range:'< 40',point:0.00}
+  ]},
+  NSU:{name:'North South University',short:'NSU',grades:[
+    {grade:'A',range:'93 - 100',point:4.00},{grade:'A-',range:'90 - 92',point:3.70},{grade:'B+',range:'87 - 89',point:3.30},
+    {grade:'B',range:'83 - 86',point:3.00},{grade:'B-',range:'80 - 82',point:2.70},{grade:'C+',range:'77 - 79',point:2.30},
+    {grade:'C',range:'73 - 76',point:2.00},{grade:'C-',range:'70 - 72',point:1.70},{grade:'D+',range:'67 - 69',point:1.30},{grade:'D',range:'60 - 66',point:1.00},{grade:'F',range:'0 - 59',point:0.00}
+  ]},
+  BRAC:{name:'Brac University',short:'BRAC',grades:[
+    {grade:'A+',range:'97 - 100',point:4.00},{grade:'A',range:'90 - <97',point:4.00},{grade:'A-',range:'85 - <90',point:3.70},
+    {grade:'B+',range:'80 - <85',point:3.30},{grade:'B',range:'75 - <80',point:3.00},{grade:'B-',range:'70 - <75',point:2.70},
+    {grade:'C+',range:'65 - <70',point:2.30},{grade:'C',range:'60 - <65',point:2.00},{grade:'C-',range:'57 - <60',point:1.70},
+    {grade:'D+',range:'55 - <57',point:1.30},{grade:'D',range:'52 - <55',point:1.00},{grade:'D-',range:'50 - <52',point:0.70},{grade:'F',range:'<50',point:0.00}
+  ]},
+  AUST:{name:'Ahsanullah University of Science and Technology',short:'AUST',grades:[
+    {grade:'A+',range:'80 - 100',point:4.00},{grade:'A',range:'75 - 80',point:3.75},{grade:'A-',range:'70 - 75',point:3.50},
+    {grade:'B+',range:'65 - 70',point:3.25},{grade:'B',range:'60 - 65',point:3.00},{grade:'B-',range:'55 - 60',point:2.75},
+    {grade:'C+',range:'50 - 55',point:2.50},{grade:'C',range:'45 - 50',point:2.25},{grade:'D',range:'40 - 45',point:2.00},{grade:'F',range:'0 - 39',point:0.00}
+  ]},
+  AIUB:{name:'American International University',short:'AIUB',grades:[
+    {grade:'A+',range:'90 - 100',point:4.00},{grade:'A',range:'85 - <90',point:3.75},{grade:'B+',range:'80 - <85',point:3.50},
+    {grade:'B',range:'75 - <80',point:3.25},{grade:'C+',range:'70 - <75',point:3.00},{grade:'C',range:'65 - <70',point:2.75},
+    {grade:'D+',range:'60 - <65',point:2.50},{grade:'D',range:'50 - <60',point:2.25},{grade:'F',range:'<50',point:0.00}
+  ]},
+  IUB:{name:'Independent University',short:'IUB',grades:[
+    {grade:'A',range:'90 - 100',point:4.00},{grade:'A-',range:'85 - 90',point:3.70},{grade:'B+',range:'80 - 85',point:3.30},
+    {grade:'B',range:'75 - 80',point:3.00},{grade:'B-',range:'70 - 75',point:2.70},{grade:'C+',range:'65 - 70',point:2.30},
+    {grade:'C',range:'60 - 65',point:2.00},{grade:'C-',range:'55 - 60',point:1.70},{grade:'D+',range:'50 - 55',point:1.30},{grade:'D',range:'45 - 50',point:1.00},{grade:'F',range:'0 - 44',point:0.00}
+  ]},
+  UIU:{name:'United International University',short:'UIU',grades:[
+    {grade:'A',range:'90 - 100',point:4.00},{grade:'A-',range:'86 - 89',point:3.67},{grade:'B+',range:'82 - 85',point:3.33},
+    {grade:'B',range:'78 - 81',point:3.00},{grade:'B-',range:'74 - 77',point:2.67},{grade:'C+',range:'70 - 73',point:2.33},
+    {grade:'C',range:'66 - 69',point:2.00},{grade:'C-',range:'62 - 65',point:1.67},{grade:'D+',range:'58 - 61',point:1.33},{grade:'D',range:'55 - 57',point:1.00},{grade:'F',range:'0 - 54',point:0.00}
+  ]},
+  IUBAT:{name:'International University of Business Agriculture and Technology',short:'IUBAT',grades:[
+    {grade:'A+',range:'> 80',point:4.00},{grade:'A',range:'75 - 80',point:3.75},{grade:'A-',range:'70 - 75',point:3.50},
+    {grade:'B+',range:'65 - 70',point:3.25},{grade:'B',range:'60 - 65',point:3.00},{grade:'B-',range:'55 - 60',point:2.75},
+    {grade:'C+',range:'50 - 55',point:2.50},{grade:'C',range:'45 - 50',point:2.25},{grade:'D',range:'40 - 45',point:2.00},{grade:'F',range:'< 40',point:0.00}
+  ]},
+  ULAB:{name:'University of Liberal Arts Bangladesh',short:'ULAB',grades:[
+    {grade:'A+',range:'95 - 100',point:4.00},{grade:'A',range:'90 - 94',point:4.00},{grade:'A-',range:'85 - 89',point:3.80},
+    {grade:'B+',range:'80 - 84',point:3.30},{grade:'B',range:'75 - 79',point:3.00},{grade:'B-',range:'70 - 74',point:2.80},
+    {grade:'C+',range:'65 - 69',point:2.50},{grade:'C',range:'60 - 64',point:2.20},{grade:'D',range:'50 - 59',point:1.50},{grade:'F',range:'0 - 49',point:0.00}
+  ]}
+};
+
+function clonePolicy(policy){
+  return JSON.parse(JSON.stringify(policy));
+}
+
+function getPresetPolicy(key=DEFAULT_POLICY){
+  const presetKey=GRADING_PRESETS[key] ? key : DEFAULT_POLICY;
+  return {preset:presetKey,...clonePolicy(GRADING_PRESETS[presetKey])};
+}
+
+function normalizeGradingPolicy(policy){
+  const fallback=getPresetPolicy();
+  if(!policy || !Array.isArray(policy.grades)) return fallback;
+
+  const grades=policy.grades
+    .map(row=>({
+      grade:String(row.grade || '').trim(),
+      range:String(row.range || '').trim(),
+      point:Number.parseFloat(row.point)
+    }))
+    .filter(row=>row.grade && !Number.isNaN(row.point));
+
+  if(!grades.length) return fallback;
+
+  const presetKey=Object.keys(GRADING_PRESETS).find(key=>key===policy.preset) || 'CUSTOM';
+  const preset=GRADING_PRESETS[presetKey];
+  const matchesPreset=preset && gradesMatchPreset(grades,preset.grades);
+  return {
+    preset:matchesPreset ? presetKey : 'CUSTOM',
+    name:matchesPreset ? preset.name : (policy.name || 'Custom'),
+    short:matchesPreset ? preset.short : (policy.short || 'CUSTOM'),
+    grades
+  };
+}
+
+function getActivePolicy(){
+  data.gradingPolicy=normalizeGradingPolicy(data.gradingPolicy);
+  return data.gradingPolicy;
+}
+
+function getGradeScale(){
+  const scale={};
+  getActivePolicy().grades.forEach(row=>{
+    scale[row.grade]=Number.parseFloat(row.point);
+  });
+  scale.R=0;
+  return scale;
+}
+
+function getGradeOptions(){
+  const grades=getActivePolicy().grades.map(row=>row.grade).filter(Boolean);
+  if(!grades.includes('R')) grades.push('R');
+  return grades;
+}
+
+function updatePolicyBadge(){
+  const badge=document.getElementById('policyBadge');
+  if(badge) badge.textContent=`Grading policy: ${getActivePolicy().short}`;
+}
+
+function normalizeSemesterNames(){
+  if(!Array.isArray(data.semesters)) data.semesters=[];
+  data.gradingPolicy=normalizeGradingPolicy(data.gradingPolicy);
+  data.semesters.forEach((semester,i)=>{
+    semester.name=`Semester ${i+1}`;
+    if(!Array.isArray(semester.subjects)) semester.subjects=[];
+  });
+}
+
+function init(){
+  const saved=localStorage.getItem(STORAGE);
+  if(saved) data=JSON.parse(saved);
+  else{
+    data.semesters=[{
+      name:'Semester 1',
+      subjects:[
+        {name:'',grade:'',credit:''},
+        {name:'',grade:'',credit:''},
+        {name:'',grade:'',credit:''}
+      ]
+    }];
+    save();
+  }
+  normalizeSemesterNames();
+  save();
+  loadTheme();
+  updateThemeIcon();
+  render();
+  updatePolicyBadge();
+}
+
+const save=()=>{
+  normalizeSemesterNames();
+  localStorage.setItem(STORAGE,JSON.stringify(data));
+  updatePolicyBadge();
+};
+
+function render(){
+  const box=document.getElementById('semesters');
+  box.innerHTML='';
+  data.semesters.forEach((s,i)=>{
+    const semesterDiv=document.createElement('div');
+    semesterDiv.className='card semester';
+
+    semesterDiv.innerHTML=`
+      <div class="sem-top">
+        <div class="sem-summary">
+          <div class="sem-title">${escapeHtml(s.name)}</div>
+          <div class="term-stat term-credit" id="tcredits-${i}">Credit: 0</div>
+          <div class="term-stat term-gpa" id="tgpa-${i}">Term GPA: 0.00</div>
+          <div class="term-stat term-cgpa" id="tcgpa-${i}">CGPA: 0.00</div>
+        </div>
+      </div>
+    `;
+
+    s.subjects.forEach((sub,j)=>{
+      semesterDiv.innerHTML+=`
+        <div class="course-row">
+          <input type="text" class="course-input" placeholder="Course Code" value="${escapeHtml(sub.name)}"
+            oninput="update(${i},${j},'name',this.value)">
+          <select class="grade-select" onchange="update(${i},${j},'grade',this.value)">
+            <option value="" ${!sub.grade?'selected':''}>Grade</option>
+            ${getGradeOptions().map(g=>`
+              <option value="${g}" ${sub.grade===g?'selected':''}>${g}</option>`).join('')}
+          </select>
+          <input type="number" class="credit-input" placeholder="Credit" value="${sub.grade === 'R' ? '0' : sub.credit}"
+            oninput="update(${i},${j},'credit',this.value)" min="0" max="10" step="0.5" ${sub.grade === 'R' ? 'readonly' : ''}>
+          <button class="del" onclick="deleteSubject(${i},${j})" title="Delete course"></button>
+        </div>
+      `;
+    });
+
+    semesterDiv.innerHTML+=`
+      <div class="button-group">
+        <button class="secondary-btn" onclick="addSubject(${i})">Add Course</button>
+        <button class="danger-btn" onclick="deleteSemester(${i})">Delete Semester</button>
+      </div>
+    `;
+
+    box.appendChild(semesterDiv);
+  });
+  updateSemesterSummaries();
+  updateOverallCGPA();
+}
+
+function update(i,j,k,v){
+  if(k === 'grade' && v === 'R'){
+    data.semesters[i].subjects[j].credit = '0';
+  }
+
+  data.semesters[i].subjects[j][k]=v;
+  save();
+  updateSemesterSummaries();
+  updateOverallCGPA();
+
+  const creditInput = document.querySelectorAll('.semester')[i]?.querySelectorAll('.credit-input')[j];
+  if(creditInput && data.semesters[i].subjects[j].grade === 'R'){
+    creditInput.value = '0';
+    creditInput.readOnly = true;
+  } else if(creditInput){
+    creditInput.readOnly = false;
+  }
+}
+
+function getSemesterTotals(semester){
+  let totalPoints=0,totalCredits=0;
+  (semester.subjects || []).forEach(s=>{
+    const gradeValue = getGradeScale()[s.grade];
+    const creditValue = s.grade === 'R' ? 0 : parseFloat(s.credit || 0);
+
+    if(gradeValue !== undefined && creditValue !== undefined && !isNaN(creditValue)){
+      totalPoints += gradeValue * creditValue;
+      totalCredits += creditValue;
+    }
+  });
+  return {totalPoints,totalCredits};
+}
+
+function formatCredits(value){
+  return Number.isInteger(value) ? `${value}` : `${parseFloat(value.toFixed(2))}`;
+}
+
+function updateSemesterSummaries(){
+  let cumulativePoints=0,cumulativeCredits=0;
+
+  data.semesters.forEach((semester,i)=>{
+    const {totalPoints,totalCredits}=getSemesterTotals(semester);
+    cumulativePoints += totalPoints;
+    cumulativeCredits += totalCredits;
+
+    const termGPA=totalCredits>0?(totalPoints/totalCredits).toFixed(2):'0.00';
+    const cumulativeCGPA=cumulativeCredits>0?(cumulativePoints/cumulativeCredits).toFixed(2):'0.00';
+    const creditEl=document.getElementById(`tcredits-${i}`);
+    const termEl=document.getElementById(`tgpa-${i}`);
+    const cgpaEl=document.getElementById(`tcgpa-${i}`);
+
+    if(creditEl) creditEl.textContent=`Credit: ${formatCredits(totalCredits)}`;
+    if(termEl) termEl.textContent=`Term GPA: ${termGPA}`;
+    if(cgpaEl) cgpaEl.textContent=`CGPA: ${cumulativeCGPA}`;
+  });
+}
+
+function updateOverallCGPA(){
+  let totalPoints=0,totalCredits=0;
+  data.semesters.forEach(semester=>{
+    const totals=getSemesterTotals(semester);
+    totalPoints += totals.totalPoints;
+    totalCredits += totals.totalCredits;
+  });
+  const cgpa=totalCredits>0?(totalPoints/totalCredits).toFixed(2):'0.00';
+  document.getElementById('cgpa').textContent=`CGPA: ${cgpa}`;
+  document.getElementById('credits').textContent=formatCredits(totalCredits);
+}
+
+function addSemester(){
+  data.semesters.push({
+    name:`Semester ${data.semesters.length+1}`,
+    subjects:[
+      {name:'',grade:'',credit:''},
+      {name:'',grade:'',credit:''},
+      {name:'',grade:'',credit:''}
+    ]
+  });
+  save();
+  render();
+}
+
+function addSubject(semesterIndex){
+  data.semesters[semesterIndex].subjects.push({
+    name:'',
+    grade:'',
+    credit:''
+  });
+  save();
+  render();
+}
+
+function deleteSubject(semesterIndex, subjectIndex){
+  if(data.semesters[semesterIndex].subjects.length <= 1){
+    alert('You must have at least one course in a semester');
+    return;
+  }
+  data.semesters[semesterIndex].subjects.splice(subjectIndex,1);
+  save();
+  render();
+}
+
+function deleteSemester(index){
+  if(data.semesters.length<=1){
+    alert('You must have at least one semester');
+    return;
+  }
+  if(confirm('Are you sure you want to delete this semester?')){
+    data.semesters.splice(index,1);
+    save();
+    render();
+  }
+}
+
+function toggleTheme(){
+  const currentTheme=document.documentElement.getAttribute('data-theme');
+  const newTheme=currentTheme==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',newTheme);
+  localStorage.setItem(THEME,newTheme);
+  updateThemeIcon();
+}
+
+function updateThemeIcon(){
+  const themeIcon=document.getElementById('themeIcon');
+  const currentTheme=document.documentElement.getAttribute('data-theme');
+  themeIcon.setAttribute('data-mode', currentTheme==='dark' ? 'dark' : 'light');
+}
+
+function loadTheme(){
+  const savedTheme=localStorage.getItem(THEME)||'light';
+  document.documentElement.setAttribute('data-theme',savedTheme);
+}
+
+function openSettings(){
+  settingsDraft=clonePolicy(getActivePolicy());
+  renderSettingsPanel();
+  document.getElementById('settingsOverlay').classList.add('active');
+}
+
+function closeSettings(){
+  document.getElementById('settingsOverlay').classList.remove('active');
+}
+
+function renderSettingsPanel(){
+  const presetSelect=document.getElementById('policyPreset');
+  const activePreset=settingsDraft?.preset || 'CUSTOM';
+  presetSelect.innerHTML=[
+    ...Object.entries(GRADING_PRESETS).map(([key,preset])=>
+      `<option value="${key}" ${activePreset===key?'selected':''}>${preset.name}</option>`),
+    `<option value="CUSTOM" ${activePreset==='CUSTOM'?'selected':''}>Custom</option>`
+  ].join('');
+  renderGradeSettingsRows();
+}
+
+function renderGradeSettingsRows(){
+  const rows=document.getElementById('gradeSettingsRows');
+  const grades=(settingsDraft?.grades || []).map((row,index)=>`
+    <div class="grade-setting-row">
+      <input class="setting-input setting-grade" value="${escapeHtml(row.grade)}" oninput="markCustomPolicy()">
+      <input class="setting-input setting-range" value="${escapeHtml(row.range)}" oninput="markCustomPolicy()">
+      <input class="setting-input setting-point" type="number" step="0.01" value="${escapeHtml(String(row.point))}" oninput="markCustomPolicy()">
+      <button class="grade-remove" onclick="removeGradeSettingRow(${index})" title="Remove grade" aria-label="Remove grade"></button>
+    </div>
+  `).join('');
+  rows.innerHTML=grades;
+}
+
+function selectPolicyPreset(key){
+  if(key==='CUSTOM'){
+    markCustomPolicy();
+    return;
+  }
+  settingsDraft=getPresetPolicy(key);
+  renderSettingsPanel();
+}
+
+function markCustomPolicy(){
+  settingsDraft=readSettingsRows();
+  settingsDraft.preset='CUSTOM';
+  settingsDraft.name='Custom';
+  settingsDraft.short='CUSTOM';
+  const presetSelect=document.getElementById('policyPreset');
+  if(presetSelect) presetSelect.value='CUSTOM';
+}
+
+function readSettingsRows(){
+  const rows=[...document.querySelectorAll('.grade-setting-row')];
+  return {
+    preset:settingsDraft?.preset || 'CUSTOM',
+    name:settingsDraft?.name || 'Custom',
+    short:settingsDraft?.short || 'CUSTOM',
+    grades:rows.map(row=>({
+      grade:row.querySelector('.setting-grade').value.trim(),
+      range:row.querySelector('.setting-range').value.trim(),
+      point:Number.parseFloat(row.querySelector('.setting-point').value)
+    })).filter(row=>row.grade && !Number.isNaN(row.point))
+  };
+}
+
+function gradesMatchPreset(grades,presetGrades){
+  if(grades.length!==presetGrades.length) return false;
+  return grades.every((row,index)=>{
+    const preset=presetGrades[index];
+    return row.grade===preset.grade && row.range===preset.range && Number(row.point)===Number(preset.point);
+  });
+}
+
+function addGradeSettingRow(){
+  settingsDraft=readSettingsRows();
+  settingsDraft.preset='CUSTOM';
+  settingsDraft.name='Custom';
+  settingsDraft.short='CUSTOM';
+  settingsDraft.grades.push({grade:'',range:'',point:0});
+  renderSettingsPanel();
+  document.getElementById('policyPreset').value='CUSTOM';
+}
+
+function removeGradeSettingRow(index){
+  settingsDraft=readSettingsRows();
+  settingsDraft.preset='CUSTOM';
+  settingsDraft.name='Custom';
+  settingsDraft.short='CUSTOM';
+  settingsDraft.grades.splice(index,1);
+  renderSettingsPanel();
+  document.getElementById('policyPreset').value='CUSTOM';
+}
+
+function saveGradingSettings(){
+  const selected=document.getElementById('policyPreset').value;
+  const policy=normalizeGradingPolicy(readSettingsRows());
+  const preset=GRADING_PRESETS[selected];
+
+  if(preset && gradesMatchPreset(policy.grades,preset.grades)){
+    data.gradingPolicy=getPresetPolicy(selected);
+  }else{
+    data.gradingPolicy={preset:'CUSTOM',name:'Custom',short:'CUSTOM',grades:policy.grades};
+  }
+
+  save();
+  render();
+  closeSettings();
+}
+
+function resetAll(){
+  if(confirm('Are you sure you want to clear all data?')){
+    data={semesters:[{
+      name:'Semester 1',
+      subjects:[
+        {name:'',grade:'',credit:''},
+        {name:'',grade:'',credit:''},
+        {name:'',grade:'',credit:''}
+      ]
+    }]};
+    save();
+    render();
+  }
+}
+
+function exportData(){
+  normalizeSemesterNames();
+  const json=JSON.stringify(data,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date().toISOString().slice(0,10);
+  a.href=url;
+  a.download=`CGPA_data_${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(event){
+  const file=event.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const imported=JSON.parse(e.target.result);
+      if(!imported.semesters || !Array.isArray(imported.semesters)){
+        alert('Invalid file format. Please select a valid CGPA data JSON file.');
+        return;
+      }
+      if(confirm('This will replace your current data. Continue?')){
+        data=imported;
+        save();
+        render();
+      }
+    }catch(err){
+      alert('Failed to read file. Please make sure it is a valid JSON file.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+
+function escapeHtml(text){
+  const div=document.createElement('div');
+  div.textContent=text;
+  return div.innerHTML;
+}
+
+init();
+</script>
+</body>
+</html>
