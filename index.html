@@ -477,13 +477,14 @@ h1{
   color:var(--text);
 }
 
-[data-theme="dark"] .grade-select option{
-  background:#222222;
+[data-theme="dark"] .grade-select option,
+[data-theme="dark"] .settings-select option{
+  background:#141414;
   color:#e5e7eb;
 }
 
 [data-theme="dark"] .grade-select option:checked{
-  background:#3a3a3a;
+  background:#262626;
   color:#ffffff;
 }
 
@@ -859,11 +860,6 @@ h1{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
 }
 
-[data-theme="dark"] .settings-select option{
-  background:#222222;
-  color:#e5e7eb;
-}
-
 .grade-settings-head,
 .grade-setting-row{
   display:grid;
@@ -935,6 +931,15 @@ h1{
     border-radius:26px 26px 0 0;
     z-index:1000;
     box-shadow:0 -4px 30px rgba(0,0,0,0.15);
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    align-items:center;
+    row-gap:14px;
+  }
+  .cgpa-display,
+  .credits-display{
+    margin:0;
   }
   .course-row{
     grid-template-columns:minmax(140px,185px) 100px 75px 40px;
@@ -979,8 +984,8 @@ h1{
   .header{ gap:12px; margin-bottom:16px; }
   .clear-btn,.settings-btn,.theme-btn,.export-btn,.import-btn{ padding:5px; height:42px; width:42px; }
   .sidebar{ padding:18px; border:0px solid var(--border); border-bottom:none; border-radius:26px 26px 0 0; }
-  .cgpa-display{ font-size:1.8rem; margin-bottom:8px; }
-  .credits-display{ margin:14px 0 24px; font-size:1rem; }
+  .cgpa-display{ font-size:1.8rem; margin:0; }
+  .credits-display{ margin:0; font-size:1rem; text-align:right; }
   .primary-btn{ padding:16px 20px; font-size:1.1rem; font-weight:600; }
   .secondary-btn{ padding:10px 14px; font-size:0.9rem; }
   .settings-overlay{ padding:12px; }
@@ -1101,9 +1106,9 @@ const GRADING_PRESETS={
     {grade:'C+',range:'50 - 54',point:2.50},{grade:'C',range:'45 - 49',point:2.25},{grade:'D',range:'40 - 44',point:2.00},{grade:'F',range:'0 - 39',point:0.00}
   ]},
   EWU:{name:'East West University',short:'EWU',grades:[
-    {grade:'A+',range:'80 - 100',point:4.00},{grade:'A',range:'75 - 79',point:3.75},{grade:'A-',range:'70 - 74',point:3.50},
-    {grade:'B+',range:'65 - 69',point:3.25},{grade:'B',range:'60 - 64',point:3.00},{grade:'B-',range:'55 - 59',point:2.75},
-    {grade:'C+',range:'50 - 54',point:2.50},{grade:'C',range:'45 - 49',point:2.25},{grade:'D',range:'40 - 44',point:2.00},{grade:'F',range:'< 40',point:0.00}
+    {grade:'A+',range:'80 - 100',point:4.00},{grade:'A',range:'75 - 80',point:3.75},{grade:'A-',range:'70 - 75',point:3.50},
+    {grade:'B+',range:'65 - 70',point:3.25},{grade:'B',range:'60 - 65',point:3.00},{grade:'B-',range:'55 - 60',point:2.75},
+    {grade:'C+',range:'50 - 55',point:2.50},{grade:'C',range:'45 - 50',point:2.25},{grade:'D',range:'40 - 45',point:2.00},{grade:'F',range:'< 40',point:0.00}
   ]},
   NSU:{name:'North South University',short:'NSU',grades:[
     {grade:'A',range:'93 - 100',point:4.00},{grade:'A-',range:'90 - 92',point:3.70},{grade:'B+',range:'87 - 89',point:3.30},
@@ -1111,15 +1116,15 @@ const GRADING_PRESETS={
     {grade:'C',range:'73 - 76',point:2.00},{grade:'C-',range:'70 - 72',point:1.70},{grade:'D+',range:'67 - 69',point:1.30},{grade:'D',range:'60 - 66',point:1.00},{grade:'F',range:'0 - 59',point:0.00}
   ]},
   BRAC:{name:'Brac University',short:'BRAC',grades:[
-    {grade:'A+',range:'97 - 100',point:4.00},{grade:'A',range:'90 - 96',point:4.00},{grade:'A-',range:'85 - 89',point:3.70},
-    {grade:'B+',range:'80 - 84',point:3.30},{grade:'B',range:'75 - 79',point:3.00},{grade:'B-',range:'70 - 74',point:2.70},
-    {grade:'C+',range:'65 - 69',point:2.30},{grade:'C',range:'60 - 64',point:2.00},{grade:'C-',range:'57 - 59',point:1.70},
-    {grade:'D+',range:'55 - 56',point:1.30},{grade:'D',range:'52 - 54',point:1.00},{grade:'D-',range:'50 - 51',point:0.70},{grade:'F',range:'<50',point:0.00}
+    {grade:'A+',range:'97 - 100',point:4.00},{grade:'A',range:'90 - <97',point:4.00},{grade:'A-',range:'85 - <90',point:3.70},
+    {grade:'B+',range:'80 - <85',point:3.30},{grade:'B',range:'75 - <80',point:3.00},{grade:'B-',range:'70 - <75',point:2.70},
+    {grade:'C+',range:'65 - <70',point:2.30},{grade:'C',range:'60 - <65',point:2.00},{grade:'C-',range:'57 - <60',point:1.70},
+    {grade:'D+',range:'55 - <57',point:1.30},{grade:'D',range:'52 - <55',point:1.00},{grade:'D-',range:'50 - <52',point:0.70},{grade:'F',range:'<50',point:0.00}
   ]},
   AUST:{name:'Ahsanullah University of Science and Technology',short:'AUST',grades:[
-    {grade:'A+',range:'80 - 100',point:4.00},{grade:'A',range:'75 - 79',point:3.75},{grade:'A-',range:'70 - 74',point:3.50},
-    {grade:'B+',range:'65 - 69',point:3.25},{grade:'B',range:'60 - 64',point:3.00},{grade:'B-',range:'55 - 59',point:2.75},
-    {grade:'C+',range:'50 - 54',point:2.50},{grade:'C',range:'45 - 49',point:2.25},{grade:'D',range:'40 - 44',point:2.00},{grade:'F',range:'< 40',point:0.00}
+    {grade:'A+',range:'80 - 100',point:4.00},{grade:'A',range:'75 - 80',point:3.75},{grade:'A-',range:'70 - 75',point:3.50},
+    {grade:'B+',range:'65 - 70',point:3.25},{grade:'B',range:'60 - 65',point:3.00},{grade:'B-',range:'55 - 60',point:2.75},
+    {grade:'C+',range:'50 - 55',point:2.50},{grade:'C',range:'45 - 50',point:2.25},{grade:'D',range:'40 - 45',point:2.00},{grade:'F',range:'0 - 39',point:0.00}
   ]},
   AIUB:{name:'American International University',short:'AIUB',grades:[
     {grade:'A+',range:'90 - 100',point:4.00},{grade:'A',range:'85 - <90',point:3.75},{grade:'B+',range:'80 - <85',point:3.50},
