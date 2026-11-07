@@ -177,7 +177,7 @@ h1{
   color:#000000;
 }
 
-/* ── HEADER BUTTONS ────────────────────────────────---- */
+/* ── HEADER BUTTONS ──────────────────────────────────── */
 .header-right{
   display:flex;
   gap:8px;
@@ -362,20 +362,6 @@ h1{
 
 .mobile-add-btn{
   display:none;
-}
-
-/* ── RESPONSIVE SEM TITLE LABELS ─────────────────────── */
-.mobile-sem{
-  display:none;
-}
-
-@media(max-width:900px){
-  .desktop-sem{
-    display:none;
-  }
-  .mobile-sem{
-    display:inline;
-  }
 }
 
 /* ── GLASS CARD ──────────────────────────────────────── */
@@ -1029,7 +1015,7 @@ h1{
   .grade-select{ padding:10px 24px 10px 8px; background-position:right 10px center; font-size:0.9rem; height:42px; }
   .credit-input{ padding:10px 6px; font-size:0.9rem; height:42px; }
   .del{ width:40px; height:40px; }
-  .del::after{ width:20px; height:20px; }
+  .del::after{ width:22px; height:22px; }
   body{ padding-bottom:105px; }
   .card{ padding:14px; }
   .header{ gap:8px; }
@@ -1285,13 +1271,10 @@ function render(){
     semesterDiv.innerHTML=`
       <div class="sem-top">
         <div class="sem-summary">
-          <div class="sem-title">
-            <span class="desktop-sem">Semester ${i+1}</span>
-            <span class="mobile-sem">Sem ${i+1}</span>
-          </div>
-          <div class="term-stat term-credit" id="tcredits-${i}">Credit 0</div>
-          <div class="term-stat term-gpa" id="tgpa-${i}">Term GPA 0.00</div>
-          <div class="term-stat term-cgpa" id="tcgpa-${i}">CGPA 0.00</div>
+          <div class="sem-title">${escapeHtml(s.name)}</div>
+          <div class="term-stat term-credit" id="tcredits-${i}">Credit: 0</div>
+          <div class="term-stat term-gpa" id="tgpa-${i}">Term GPA: 0.00</div>
+          <div class="term-stat term-cgpa" id="tcgpa-${i}">CGPA: 0.00</div>
         </div>
       </div>
     `;
@@ -1377,9 +1360,9 @@ function updateSemesterSummaries(){
     const termEl=document.getElementById(`tgpa-${i}`);
     const cgpaEl=document.getElementById(`tcgpa-${i}`);
 
-    if(creditEl) creditEl.textContent=`Credit ${formatCredits(totalCredits)}`;
-    if(termEl) termEl.textContent=`Term GPA ${termGPA}`;
-    if(cgpaEl) cgpaEl.textContent=`CGPA ${cumulativeCGPA}`;
+    if(creditEl) creditEl.textContent=`Credit: ${formatCredits(totalCredits)}`;
+    if(termEl) termEl.textContent=`Term GPA: ${termGPA}`;
+    if(cgpaEl) cgpaEl.textContent=`CGPA: ${cumulativeCGPA}`;
   });
 }
 
