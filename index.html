@@ -14,6 +14,7 @@
   --card:rgba(255,255,255,0.78);
   --border:rgba(0,0,0,0.09);
   --border-subtle:rgba(0,0,0,0.16);
+  --button-border:rgba(0,0,0,0.20);
   --input-bg:rgba(255,255,255,0.85);
   --text:#000000;
   --muted:#64748b;
@@ -35,6 +36,7 @@
   --card:rgba(255,255,255,0.11);
   --border:rgba(255,255,255,0.12);
   --border-subtle:rgba(255,255,255,0.2);
+  --button-border:var(--border-subtle);
   --input-bg:rgba(22,22,22,0.95);
   --text:#e5e7eb;
   --muted:#a3a3a3;
@@ -194,7 +196,7 @@ h1{
   width:42px;
   height:42px;
   border-radius:8px;
-  border:1px solid var(--border);
+  border:1px solid var(--button-border);
   background:var(--card);
   backdrop-filter:var(--blur);
   -webkit-backdrop-filter:var(--blur);
@@ -517,7 +519,7 @@ h1{
 /* ── DELETE BUTTON (row) ─────────────────────────────── */
 .del{
   background:var(--card);
-  border:1px solid var(--border);
+  border:1px solid var(--button-border);
   backdrop-filter:var(--blur);
   -webkit-backdrop-filter:var(--blur);
   cursor:pointer;
@@ -602,7 +604,7 @@ h1{
   backdrop-filter:var(--blur);
   -webkit-backdrop-filter:var(--blur);
   color:var(--accent);
-  border:1px solid var(--border);
+  border:1px solid var(--button-border);
   padding:10px 18px;
   border-radius:8px;
   font-weight:600;
@@ -636,7 +638,7 @@ h1{
   backdrop-filter:var(--blur);
   -webkit-backdrop-filter:var(--blur);
   color:var(--danger);
-  border:1px solid var(--border);
+  border:1px solid var(--button-border);
   padding:10px 18px;
   border-radius:8px;
   font-weight:600;
@@ -691,6 +693,11 @@ h1{
 .sidebar.card{
   backdrop-filter:none;
   -webkit-backdrop-filter:none;
+}
+
+[data-theme="light"] .sidebar.card{
+  backdrop-filter:blur(32px) saturate(180%);
+  -webkit-backdrop-filter:blur(32px) saturate(180%);
 }
 
 [data-theme="dark"] .semester.card,
@@ -784,7 +791,7 @@ h1{
 
 .settings-close,
 .grade-remove{
-  border:1px solid var(--border);
+  border:1px solid var(--button-border);
   background:var(--card);
   color:var(--muted);
   border-radius:8px;
@@ -930,6 +937,14 @@ h1{
 
 /* ── RESPONSIVE 900px ────────────────────────────────── */
 @media(max-width:900px){
+  .sidebar.card{
+    backdrop-filter:blur(32px) saturate(180%);
+    -webkit-backdrop-filter:blur(32px) saturate(180%);
+  }
+  [data-theme="light"] .sidebar.card{
+    backdrop-filter:blur(32px) saturate(180%);
+    -webkit-backdrop-filter:blur(32px) saturate(180%);
+  }
   .container{
     width:100%;
     grid-template-columns:1fr;
@@ -1035,6 +1050,28 @@ h1{
   .settings-actions .secondary-btn{ min-width:112px; }
 }
 
+/* ── RESPONSIVE 500px ────────────────────────────────── */
+@media(max-width:500px){
+  .header{ gap:8px; }
+  .header-right{ gap:6px; }
+  .cgpa-logo{ height:25px; }
+  .policy-link{
+    padding:3px 9px;
+    font-size:0.72rem;
+  }
+  .clear-btn,.settings-btn,.theme-btn,.export-btn,.import-btn{
+    width:38px;
+    height:38px;
+    padding:4px;
+  }
+  .clear-btn::after,
+  .settings-btn::after,
+  .export-btn::after,
+  .import-btn::after,
+  .theme-btn[data-mode="light"]::after,
+  .theme-btn[data-mode="dark"]::after{ width:20px; height:20px; }
+}
+
 /* ── RESPONSIVE 420px ────────────────────────────────── */
 @media(max-width:420px){
   .course-row{
@@ -1057,11 +1094,11 @@ h1{
   .card{ padding:14px; }
   .header{ gap:8px; }
   h1{ font-size:1.4rem; gap:7px; }
-  .cgpa-logo{ height:27px; }
+  .cgpa-logo{ height:23px; }
   .sem-summary{ justify-content:flex-start; }
   .sem-title,
   .term-stat{ font-size:0.78rem; padding:5px 10px; }
-  .clear-btn,.settings-btn,.theme-btn,.export-btn,.import-btn{ padding:5px; height:40px; width:40px; }
+  .clear-btn,.settings-btn,.theme-btn,.export-btn,.import-btn{ padding:4px; height:36px; width:36px; }
   .clear-btn::after,
   .settings-btn::after,
   .export-btn::after,
